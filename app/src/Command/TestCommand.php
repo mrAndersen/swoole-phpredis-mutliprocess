@@ -80,20 +80,23 @@ class TestCommand extends Command
 
         for ($i = 0; $i < 6; $i++) {
             if (!$dummy->addProcess(new Process(function (Process $process) use ($i): void {
-                $i = 0;
 
                 $pid = getmypid();
+
+                if ($pid % 2 == 0) {
+                    $a = new \stdClass();
+                }
+
                 $this->pool[$pid] = new RedisCluster(null, ["redis:6379", "redis1:6380", "redis2:6381"], 10, 10, true, "");
 
                 echo(sprintf("Created Redis, pid=%d, spl_hash=%s\n", $pid, spl_object_hash($this->pool[$pid])));
 
                 while (true) {
-                    echo(sprintf("Hello from %d, i = %d\n", $pid, $i));
+                    echo(sprintf("Hello from %d\n", $pid));
 
-                    $this->pool[$pid]->set('hello', $i);
-                    assert((int)$this->pool[$pid]->get('hello') === $i);
+                    $this->pool[$pid]->set('hello', 'world');
+                    assert($this->pool[$pid]->get('hello') === 'world');
 
-                    $i++;
                     sleep(2);
                 }
             }))) {
