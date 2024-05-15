@@ -1,0 +1,36 @@
+{
+  "name": "mrandersen/swoole-phpredis-mutliprocess",
+  "version": "0.1",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "mrandersen",
+      "email": "mrandersen2004@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-swoole": "5.*",
+    "symfony/console": "6.*",
+    "symfony/runtime": "6.*",
+    "symfony/framework-bundle": "6.*",
+    "ext-redis": "*",
+    "symfony/yaml": "^6.4"
+  },
+  "config": {
+    "allow-plugins": {
+      "symfony/runtime": true
+    }
+  },
+  "require-dev": {
+    "swoole/ide-helper": "^5.1"
+  }
+}
