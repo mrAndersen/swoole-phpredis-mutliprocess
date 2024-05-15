@@ -29,6 +29,9 @@ class TestCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * @var array<RedisCluster>
+     */
     protected array $pool = [];
 
     public function getName(): ?string
@@ -41,7 +44,7 @@ class TestCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dummy = new Server('0.0.0.0', 56111);
+        $dummy = new Server('0.0.0.0', 8080);
 
         $dummy->set([
             Constant::OPTION_LOG_LEVEL => SWOOLE_LOG_DEBUG,
@@ -56,8 +59,23 @@ class TestCommand extends Command
         ]);
 
         $dummy->on(Constant::EVENT_REQUEST, function (Request $request, Response $response): void {
-            $response->setStatusCode(404);
-            $response->end('{}');
+            $pid = getmypid();
+            $redis = $this->pool[$pid] ?? null;
+
+            if (!$redis) {
+                $response->setStatusCode(400);
+                $response->end();
+
+                return;
+            }
+
+            $response->setStatusCode(200);
+            $response->end($redis->get('hello'));
+        });
+
+        $dummy->on(Constant::EVENT_WORKER_START, function () {
+            $pid = getmypid();
+            $this->pool[$pid] = new RedisCluster(null, ["redis:6379", "redis1:6380", "redis2:6381"], 10, 10, true, "");
         });
 
         for ($i = 0; $i < 6; $i++) {
